@@ -1,0 +1,184 @@
+#!/usr/bin/env groovy
+
+@Library("jenkins-devops-scripts@v1.8.0") _
+node('slave') {
+    def gitUtils = new com.beat.utilities.github()
+    def stackUtils = new com.beat.utilities.stack()
+    def helmUtils = new com.beat.utilities.helm()
+    def terraformUtils = new com.beat.utilities.terraform()
+
+    def project = gitUtils.determineRepoName(env.JOB_NAME)
+    def commiter = gitUtils.determineGitCommiter()
+    def stagingBranch = "staging-develop"
+    def namespace = "peristeri"
+    def chartmuseumAPI = "https://chartmuseum.private.k8s.management.thebeat.co/api/charts"
+    def slackChannel = "#monitoring-squad4"
+    def slackToken = 'ZqDw90HGTLn8YJ45eFFu2Mt9'
+    def monitoringUtils = new com.beat.utilities.monitoring()
+    def notificationUtils = new com.beat.utilities.notifications(slackToken, project, env.BUILD_URL, env.BUILD_NUMBER)
+    notificationUtils.defaultServerDeploymentsChannel = slackChannel
+
+    // Define the stacks you want to deploy to
+    def stacks = []
+    // Define whether we are referring to prod environments
+    def prod = false
+
+    stage('Clone repository') {
+        try {
+            echo "Clearing folder..."
+            /* We delete the existing workspace for consistency. If we don't, git deleted files will still exist here. */
+            deleteDir()
+            /* Delete using shell because deleteDir() throws permission errors sometimes */
+            // sh "rm -rf *"
+            /* Let's make sure we have the repository cloned to our workspace */
+            checkout scm
+
+            if (env.TAG_NAME != null) {
+                echo "This is the ${env.TAG_NAME} tag"
+                branchOrTag = env.TAG_NAME
+                helmTag = env.TAG_NAME
+                result = stackUtils.findStacksFromTags(branchOrTag)
+                stacks = result[0]
+                prod = result[1]
+                version = env.TAG_NAME
+            } else {
+                echo "This is the ${env.BRANCH_NAME} branch"
+                branchOrTag = env.BRANCH_NAME
+                // This here is a hack/workaround!
+                // helmTag is actually the helm chart's version. However helm does not support
+                // semver incompatible versions, that is the version does not start with something
+                // like vx.x.x or plain x.x.x
+                // In our case, when we build for staging-develop branch we have no version, since there is not git tag here.
+                // So have a placeholder version of v1.0.0-staging-develop
+                helmTag = "v1.0.0-${env.BRANCH_NAME}"
+                stacks = stackUtils.stacksStaging()
+                if (branchOrTag != stagingBranch) {
+                    sh "exit 0"
+                }
+                // Append timestamp in version
+                date = new Date().format( 'yyyyMMdd.HHmmss' )
+                version = branchOrTag + "-${date}"
+            }
+
+            notificationUtils.slackNotifyDeploymentStarted(stacks)
+
+            // Get Management stack variables
+            envVarMapManagement = stackUtils.managementstackVariables()
+            kubeconfigIdMgmt = "KUBECONFIG_${envVarMapManagement.KUBERNETES_CLUSTER}"
+        } catch(e) {
+            println("Exception on cloning repository")
+            println(e.toString())
+            def message = "deployment failed on ` + "`${STAGE_NAME}`" + ` at ${stacks} for ${project} &lt;${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
+            notificationUtils.slackNotify('FAILURE', slackChannel, slackToken, message)
+            throw e
+        }
+    }
+
+    stage('Run CI') {
+        try {
+            sh 'make ci'
+            result = 'SUCCESS'
+        } catch (e) {
+            println("Exception on running CI")
+            println(e.toString())
+            sh 'make ci-cleanup'
+            def message = "deployment failed on ` + "`${STAGE_NAME}`" + ` at ${stacks} for ${project} &lt;${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
+            notificationUtils.slackNotify('FAILURE', slackChannel, slackToken, message)
+            throw e
+        }
+    }
+
+    stage('Build docker image') {
+        /* This builds the actual image; synonymous to docker build on the command line */
+        img = docker.build("beat/peristeri:${branchOrTag}", "--build-arg version=${version} --no-cache .")
+    }
+
+    stage('Push image to registry') {
+        // If image is built, push it to registry
+        docker.withRegistry("https://${envVarMapManagement.REGISTRY_SERVER}") {
+            img.push("${branchOrTag}")
+        }
+    }
+
+    stage("Helm lint") {
+        try {
+            helmUtils.helmLint("${kubeconfigIdMgmt}", "infra/delpoy/helm/charts/peristeri")
+        } catch(e) {
+            println("Exception on Helm linting")
+            println(e.toString())
+            def message = "deployment failed on ` + "`${STAGE_NAME}`" + ` at ${stacks} for ${project} &lt;${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
+            notificationUtils.slackNotify('FAILURE', slackChannel, slackToken, message)
+            throw e
+        }
+    }
+
+    stage("Helm Build Package") {
+        helmUtils.helmPackage("${kubeconfigIdMgmt}", "infra/delpoy/helm/charts/peristeri", "${helmTag}")
+    }
+
+    stage("Push helm package to chartmuseum") {
+        helmUtils.helmPush("peristeri", "${helmTag}", "${chartmuseumAPI}")
+    }
+
+    stage("Deploy helm chart") {
+        for (stack in stacks) {
+            if (prod) {
+                envVarMapping = stackUtils.stackVariables(stack)
+                helmName = "peristeri"
+                host = "peristeri"
+            } else {
+                envVarMapping = stackUtils.stackVariables('dev')
+                helmName = "peristeri-${stack}"
+                host = "${stack}-peristeri"
+            }
+            kubeconfigId = "KUBECONFIG_${envVarMapping.KUBERNETES_CLUSTER}"
+
+            try {
+                withCredentials([
+                    string(credentialsId: 'REST_X_SECURE_ROUTE_KEY', variable: 'restSecureRouteKey'),
+                ]) {
+                    def setList = " --set image.tag=${branchOrTag} \
+                                    --set ingress.clusterSuffix=private.k8s.${envVarMapping.KUBERNETES_CLUSTER} \
+                                    --set ingress.host=${host} \
+                                    --set main.version=${version} \
+                                    --set changeCause=Jenkins=\"${RUN_DISPLAY_URL} Commiter=${commiter}\" "
+
+                    helmUtils.helmDeploy("${kubeconfigId}", "${helmTag}", "${namespace}", "${setList}", "${helmName}", "beat/peristeri")
+
+                    notificationUtils.slackNotifyDeploymentSuccess(stack)
+                }
+            } catch (e) {
+                println("Exception on deploying helm")
+                println(e.toString())
+                helmUtils.helmRollback("${kubeconfigId}", 0, "${helmName}")
+                def message = "deployment failed on ` + "`${STAGE_NAME}`" + ` at ${stacks} for ${project} &lt;${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
+                notificationUtils.slackNotify('FAILURE', slackChannel, slackToken, message)
+                throw e
+            }
+
+            stage('Apply Prometheus rules if available') {
+                try {
+                    monitoringUtils.prometheusConfig("${kubeconfigId}", "${namespace}", "infra/observe/alerting")
+                } catch (e) {
+                    println("Exception on applying prometheus rules")
+                    println(e.toString())
+                    def message = "deployment failed on ` + "`${STAGE_NAME}`" + ` at ${stacks} for ${project} &lt;${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
+                    notificationUtils.slackNotify('FAILURE', slackChannel, slackToken, message)
+                    throw e
+                }
+            }
+
+            stage('Apply Grafana rules if available') {
+                try {
+                    monitoringUtils.grafanaConfig("${kubeconfigId}", "${namespace}", "infra/observe/dashboard")
+                } catch (e) {
+                    println("Exception on applying graphana rules")
+                    println(e.toString())
+                    def message = "deployment failed on ` + "`${STAGE_NAME}`" + ` at ${stacks} for ${project} &lt;${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
+                    notificationUtils.slackNotify('FAILURE', slackChannel, slackToken, message)
+                    throw e
+                }
+            }
+        }
+    }
+}

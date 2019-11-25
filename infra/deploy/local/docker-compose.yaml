@@ -1,0 +1,19 @@
+version: "3.3"
+
+services:
+
+  peristeri:
+    image: peristeri
+    build: .
+    container_name: peristeri_dev
+    restart: on-failure
+    ports:
+      - "50000:50000"
+
+  peristeri_ci:
+    image: peristeri_ci
+    container_name: peristeri_ci
+    build:
+      context: ./../../../
+      dockerfile: infra/build/Dockerfile.ci
+    container_name: peristeri_ci

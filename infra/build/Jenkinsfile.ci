@@ -1,0 +1,39 @@
+#!/usr/bin/env groovy
+
+@Library("jenkins-devops-scripts@v1.8.0") _
+
+node('slave') {
+    def git_utils = new com.beat.utilities.github()
+    def project = git_utils.determineRepoName(env.JOB_NAME)
+    def slack_channel = "#monitoring-squad4"
+    def slack_token = 'ZqDw90HGTLn8YJ45eFFu2Mt9'
+    def notification_utils = new com.beat.utilities.notifications(slack_token, project, env.BUILD_URL, env.BUILD_NUMBER)
+    def commiter = git_utils.determineGitCommiter()
+
+    stage('Clone repository') {
+        /* Let's make sure we have the repository cloned to our workspace */
+        checkout scm
+
+        if (env.BRANCH_NAME == null) {
+            echo "No branch found"
+            sh "exit 0"
+        }
+
+        echo "This is the ${env.BRANCH_NAME} branch"
+        branch = env.BRANCH_NAME
+    }
+
+    stage('Run CI') {
+        try {
+            sh 'make ci'
+            result = 'SUCCESS'
+        } catch (e) {
+            sh "make ci-cleanup"
+            result = 'FAILURE'
+            throw e
+        } finally {
+            def message = "Build &lt;${env.BUILD_URL}console|${env.BUILD_NUMBER}> for &lt;${env.JOB_DISPLAY_URL}|${env.JOB_NAME}> by ${commiter}: ${result}"
+            notification_utils.slackNotify(result, slack_channel, slack_token, message)
+        }
+    }
+}
