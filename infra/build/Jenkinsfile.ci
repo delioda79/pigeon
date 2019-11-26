@@ -5,7 +5,7 @@
 node('slave') {
     def git_utils = new com.beat.utilities.github()
     def project = git_utils.determineRepoName(env.JOB_NAME)
-    def slack_channel = "#monitoring-squad4"
+    def slack_channel = "#ci-builds"
     def slack_token = 'ZqDw90HGTLn8YJ45eFFu2Mt9'
     def notification_utils = new com.beat.utilities.notifications(slack_token, project, env.BUILD_URL, env.BUILD_NUMBER)
     def commiter = git_utils.determineGitCommiter()
