@@ -16,4 +16,3 @@ services:
     build:
       context: ./../../../
       dockerfile: infra/build/Dockerfile.ci
-    container_name: peristeri_ci
