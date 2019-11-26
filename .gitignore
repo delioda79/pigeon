@@ -1,33 +1,33 @@
- # Binaries for programs and plugins
- *.exe
- *.dll
- *.so
- *.DS_Store
- *.dylib
- debug/
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.DS_Store
+*.dylib
+debug/
 
- # JetBrains
- .idea/*
- *.iws
- out/
- .idea_modules/
+# JetBrains
+.idea/*
+*.iws
+out/
+.idea_modules/
 
- # JIRA plugin
- atlassian-ide-plugin.xml
+# JIRA plugin
+atlassian-ide-plugin.xml
 
- # VS Code
- *.vscode
- .vscode/*
+# VS Code
+*.vscode
+.vscode/*
 
- # Test binary, build with `go test -c`
- *.test
+# Test binary, build with `go test -c`
+*.test
 
- # Output of the go coverage tool, specifically when used with LiteIDE
- *.out
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
 
- # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
- .glide/
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/
 
- # Dependency directories (remove the comment below to include it)
- # vendor/
+# Dependency directories (remove the comment below to include it)
+# vendor/
 

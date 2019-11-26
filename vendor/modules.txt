@@ -5,7 +5,6 @@ github.com/Shopify/sarama
 # github.com/beatlabs/patron v0.29.0
 github.com/beatlabs/patron
 github.com/beatlabs/patron/async
-github.com/beatlabs/patron/async/amqp
 github.com/beatlabs/patron/async/kafka
 github.com/beatlabs/patron/encoding
 github.com/beatlabs/patron/encoding/json
@@ -35,6 +34,8 @@ github.com/golang/protobuf/proto
 github.com/golang/snappy
 # github.com/google/uuid v1.1.0
 github.com/google/uuid
+# github.com/joho/godotenv v1.3.0
+github.com/joho/godotenv
 # github.com/julienschmidt/httprouter v1.2.0
 github.com/julienschmidt/httprouter
 # github.com/matttproud/golang_protobuf_extensions v1.0.1
@@ -68,8 +69,6 @@ github.com/rcrowley/go-metrics
 # github.com/rs/zerolog v1.5.0
 github.com/rs/zerolog
 github.com/rs/zerolog/internal/json
-# github.com/streadway/amqp v0.0.0-20180315184602-8e4aba63da9f
-github.com/streadway/amqp
 # github.com/uber/jaeger-client-go v2.14.0+incompatible
 github.com/uber/jaeger-client-go
 github.com/uber/jaeger-client-go/config
