@@ -1,1 +1,2 @@
-# peristeri microservice
+# peristeri
+Service that provides user Notification functionalities
