@@ -10,7 +10,7 @@ node('slave') {
     def project = gitUtils.determineRepoName(env.JOB_NAME)
     def commiter = gitUtils.determineGitCommiter()
     def stagingBranch = "staging-develop"
-    def namespace = "peristeri"
+    def namespace = "pigeon"
     def chartmuseumAPI = "https://chartmuseum.private.k8s.management.thebeat.co/api/charts"
     def slackChannel = "#server-deployments"
     def slackToken = 'ZqDw90HGTLn8YJ45eFFu2Mt9'
@@ -90,7 +90,7 @@ node('slave') {
 
     stage('Build docker image') {
         /* This builds the actual image; synonymous to docker build on the command line */
-        img = docker.build("beat/peristeri:${branchOrTag}", "--build-arg version=${version} --no-cache .")
+        img = docker.build("beat/pigeon:${branchOrTag}", "--build-arg version=${version} --no-cache .")
     }
 
     stage('Push image to registry') {
@@ -102,7 +102,7 @@ node('slave') {
 
     stage("Helm lint") {
         try {
-            helmUtils.helmLint("${kubeconfigIdMgmt}", "infra/delpoy/helm/charts/peristeri")
+            helmUtils.helmLint("${kubeconfigIdMgmt}", "infra/delpoy/helm/charts/pigeon")
         } catch(e) {
             println("Exception on Helm linting")
             println(e.toString())
@@ -113,23 +113,23 @@ node('slave') {
     }
 
     stage("Helm Build Package") {
-        helmUtils.helmPackage("${kubeconfigIdMgmt}", "infra/delpoy/helm/charts/peristeri", "${helmTag}")
+        helmUtils.helmPackage("${kubeconfigIdMgmt}", "infra/delpoy/helm/charts/pigeon", "${helmTag}")
     }
 
     stage("Push helm package to chartmuseum") {
-        helmUtils.helmPush("peristeri", "${helmTag}", "${chartmuseumAPI}")
+        helmUtils.helmPush("pigeon", "${helmTag}", "${chartmuseumAPI}")
     }
 
     stage("Deploy helm chart") {
         for (stack in stacks) {
             if (prod) {
                 envVarMapping = stackUtils.stackVariables(stack)
-                helmName = "peristeri"
-                host = "peristeri"
+                helmName = "pigeon"
+                host = "pigeon"
             } else {
                 envVarMapping = stackUtils.stackVariables('dev')
-                helmName = "peristeri-${stack}"
-                host = "${stack}-peristeri"
+                helmName = "pigeon-${stack}"
+                host = "${stack}-pigeon"
             }
             kubeconfigId = "KUBECONFIG_${envVarMapping.KUBERNETES_CLUSTER}"
 
@@ -143,7 +143,7 @@ node('slave') {
                                     --set main.version=${version} \
                                     --set changeCause=Jenkins=\"${RUN_DISPLAY_URL} Commiter=${commiter}\" "
 
-                    helmUtils.helmDeploy("${kubeconfigId}", "${helmTag}", "${namespace}", "${setList}", "${helmName}", "beat/peristeri")
+                    helmUtils.helmDeploy("${kubeconfigId}", "${helmTag}", "${namespace}", "${setList}", "${helmName}", "beat/pigeon")
 
                     notificationUtils.slackNotifyDeploymentSuccess(stack)
                 }

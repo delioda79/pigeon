@@ -1,5 +1,5 @@
 groups:
-- name:peristeri.go_process.rules
+- name:pigeon.go_process.rules
   rules:
   - alert: HighMemoryUsage
     expr: avg(process_resident_memory_bytes) > 200000000

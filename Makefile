@@ -11,7 +11,7 @@ help:
 	@echo "  test-init       to run all the tests with integration."
 
 serve:
-	docker-compose up -d peristeri
+	docker-compose up -d pigeon
 
 stop:
 	docker-compose down
@@ -27,18 +27,18 @@ test-int:
 
 ci:
 	docker-compose -f infra/deploy/local/docker-compose.yaml down
-	docker-compose -f infra/deploy/local/docker-compose.yaml build peristeri_ci
-	docker-compose -f infra/deploy/local/docker-compose.yaml run peristeri_ci ./script/ci.sh
+	docker-compose -f infra/deploy/local/docker-compose.yaml build pigeon_ci
+	docker-compose -f infra/deploy/local/docker-compose.yaml run pigeon_ci ./script/ci.sh
 	docker-compose -f infra/deploy/local/docker-compose.yaml down
 
 ci-cleanup:
 	docker-compose -f infra/deploy/local/docker-compose.yaml down
 
 run:
-	go run -mod=vendor ./cmd/peristeri/main.go
+	go run -mod=vendor ./cmd/pigeon/main.go
 
 build:
-	CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -installsuffix cgo -o ./peristeri ./cmd/peristeri/main.go
+	CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -installsuffix cgo -o ./pigeon ./cmd/pigeon/main.go
 
 fmt:
 	go fmt ./...

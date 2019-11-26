@@ -2,17 +2,17 @@ version: "3.3"
 
 services:
 
-  peristeri:
-    image: peristeri
+  pigeon:
+    image: pigeon
     build: .
-    container_name: peristeri_dev
+    container_name: pigeon_dev
     restart: on-failure
     ports:
       - "50000:50000"
 
-  peristeri_ci:
-    image: peristeri_ci
-    container_name: peristeri_ci
+  pigeon_ci:
+    image: pigeon_ci
+    container_name: pigeon_ci
     build:
       context: ./../../../
       dockerfile: infra/build/Dockerfile.ci

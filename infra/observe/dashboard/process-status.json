@@ -12,7 +12,7 @@
 		}
 	  ]
 	},
-	"description": "Peristeri process status published by Go Prometheus client library, e.g. memory used, fds open, GC details",
+	"description": "pigeon process status published by Go Prometheus client library, e.g. memory used, fds open, GC details",
 	"editable": true,
 	"gnetId": 6671,
 	"graphTooltip": 0,
@@ -975,7 +975,7 @@
 	  ]
 	},
 	"timezone": "browser",
-	"title": "Peristeri Processes",
+	"title": "pigeon Processes",
 	"uid": "LLEXinFtx",
 	"version": 6
 }
