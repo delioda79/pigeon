@@ -102,6 +102,8 @@ github.com/rs/zerolog
 github.com/rs/zerolog/internal/json
 # github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
+# github.com/subosito/twilio v0.0.1
+github.com/subosito/twilio
 # github.com/uber/jaeger-client-go v2.14.0+incompatible
 github.com/uber/jaeger-client-go
 github.com/uber/jaeger-client-go/config
