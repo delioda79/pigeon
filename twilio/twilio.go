@@ -1,13 +1,16 @@
 package twilio
 
 const (
+	// BaseTwilioURL is the base URL for the Twilio API
 	BaseTwilioURL = "https://api.twilio.com/2010-04-01/Accounts/"
-	MSGURL        = "/Messages.json"
+	// MSGURL is the schema definition for the messgaing API
+	MSGURL = "/Messages.json"
 )
 
+// MessageResource is the result of a message sending
 type MessageResource struct {
 	AccountSID          string `json:"AccountSID"`
-	ApiVersion          string `json:"api_version"`
+	APIVersion          string `json:"api_version"`
 	Body                string `json:"body"`
 	DateCreated         string `json:"date_created"`
 	DateUpdates         string `json:"date_updates"`
@@ -27,6 +30,7 @@ type MessageResource struct {
 	URI                 string `json:"uri"`
 }
 
+// MessageCreate represent a message request
 type MessageCreate struct {
 	To                  string   `json:"To"`
 	StatusCallback      string   `json:"StatusCallback,omitempty"`
@@ -52,6 +56,7 @@ type MessageCreate struct {
 	MediaURL            []string `json:"MediaUrl,omitempty"`
 }
 
+// ProgrammableSMS is an interface to interact with the Programmable SMS Twilio API
 type ProgrammableSMS interface {
-	Send(m MessageCreate) MessageResource
+	Send(m MessageCreate) (MessageResource, error)
 }

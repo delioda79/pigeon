@@ -10,32 +10,24 @@ import (
 
 func TestSend(t *testing.T) {
 	cfg := &config.Configuration{}
-	cfg.NecessarySMS.Set("first")
+	cfg.TwilioTimeCriticalPool.Set("first")
 
 	firstSender := &messagingfakes.FakeSender{}
 	firstSender.SendReturns(nil)
-	secondSender := &messagingfakes.FakeSender{}
-	secondSender.SendReturns(nil)
 
-	senders := map[string]messaging.Sender{
-		"first":  firstSender,
-		"second": secondSender,
+	senders := &settings{
+		twilio: firstSender,
 	}
 
 	mng := Service{cfg, senders}
 
-	err := mng.Send(messaging.Message{Type: messaging.Necessary})
+	err := mng.Send(messaging.Message{Type: messaging.TimeCriticalSMS})
 	assert.Nil(t, err)
 
-	err = mng.Send(messaging.Message{Type: "unknown"})
+	err = mng.Send(messaging.Message{Type: "unknownProvider"})
 	assert.NotNil(t, err)
 
-	cfg.NecessarySMS.Set("second")
-	err = mng.Send(messaging.Message{Type: messaging.Necessary})
+	cfg.TwilioTimeCriticalPool.Set("first")
+	err = mng.Send(messaging.Message{Type: messaging.TimeCriticalSMS})
 	assert.Nil(t, err)
-
-	cfg.NecessarySMS.Set("third")
-	err = mng.Send(messaging.Message{Type: messaging.Necessary})
-	assert.NotNil(t, err)
-
 }

@@ -18,6 +18,7 @@ const (
 	requiredBodyErrorMessage = "Body and Media URL cannot be both empty"
 )
 
+// Client is a twilio programmable SMS api client
 type Client struct {
 	hc         phttp.Client
 	accountSID string
@@ -25,6 +26,7 @@ type Client struct {
 	url        string
 }
 
+// Send sends a new message
 func (cl *Client) Send(m twilio.MessageCreate) (twilio.MessageResource, error) {
 
 	if m.From == "" && m.MessagingServiceSID == "" {
@@ -93,6 +95,7 @@ func (cl *Client) setBasicRequestDetails(req *http.Request) {
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 }
 
+// New creates a new SMS client
 func New(cl phttp.Client, sid, token, baseURL string) (*Client, error) {
 	var err error
 	if cl == nil {

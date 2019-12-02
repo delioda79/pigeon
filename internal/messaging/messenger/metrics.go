@@ -19,8 +19,8 @@ var (
 
 	messageProcessingLatency = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Namespace: "bollobas",
-			Subsystem: "injestion",
+			Namespace: "pigeon",
+			Subsystem: "messenger",
 			Name:      "latency_seconds",
 			Help:      "Latency of ingested messages processing",
 		},

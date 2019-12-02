@@ -3,7 +3,7 @@ set -e
 
 # lint
 echo "Checking lint"
-golangci-lint run
+golint -set_exit_status=1 `go list ./...`
 echo "Lint success!"
 
 # test

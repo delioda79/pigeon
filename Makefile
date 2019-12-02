@@ -17,7 +17,7 @@ stop:
 	docker-compose down
 
 lint:
-	golangci-lint run
+	golint -set_exit_status=1 `go list ./...`
 
 test:
 	go test -mod=vendor `go list ./... | grep -v 'docs'` -race

@@ -18,14 +18,14 @@ func TestNewCOnfiguration(t *testing.T) {
 	assert.Equal(t, "", cfg.KafkaBroker.Get())
 	assert.Equal(t, "", cfg.KafkaGroup.Get())
 	assert.Equal(t, "", cfg.KafkaTopic.Get())
-	assert.Equal(t, "", cfg.NecessarySMS.Get())
+	assert.Equal(t, "", cfg.TwilioTimeCriticalPool.Get())
 
 	h.Harvest(context.Background())
 
 	assert.Equal(t, "testbroker", cfg.KafkaBroker.Get())
 	assert.Equal(t, "testgroup", cfg.KafkaGroup.Get())
 	assert.Equal(t, "testtopic", cfg.KafkaTopic.Get())
-	assert.Equal(t, "", cfg.NecessarySMS.Get())
+	assert.Equal(t, "", cfg.TwilioTimeCriticalPool.Get())
 }
 
 func TestWrongConfig(t *testing.T) {

@@ -9,15 +9,17 @@ import (
 )
 
 const (
-	twilio  = "twilio"
-	unknown = "unknown"
+	unknownProvider = "unknownProvider"
+	twilioProvider  = "twilio"
 )
 
+// Service is a messenger which finds the correct provider and uses it to send messages
 type Service struct {
 	cfg     *config.Configuration
-	senders map[string]messaging.Sender
+	senders *settings
 }
 
+// Send uses teh correct provider to send messages
 func (s Service) Send(m messaging.Message) error {
 	var e error
 	var provider string
@@ -25,16 +27,11 @@ func (s Service) Send(m messaging.Message) error {
 	start := time.Now()
 
 	switch m.Type {
-	case messaging.Necessary:
-		provider = s.cfg.NecessarySMS.Get()
-		snd, ok := s.senders[s.cfg.NecessarySMS.Get()]
-		if !ok {
-			ObserveCount(messaging.Necessary, provider, false)
-			return errors.New(fmt.Sprintf("Unknown provider %s", s.cfg.NecessarySMS.Get()))
-		}
-		e = snd.Send(m)
+	case messaging.TimeCriticalSMS:
+		provider = twilioProvider
+		e = s.senders.twilio.Send(m)
 	default:
-		ObserveCount(unknown, unknown, false)
+		ObserveCount(unknownProvider, unknownProvider, false)
 		return errors.New(fmt.Sprintf("Unknown type %s", m.Type))
 	}
 
@@ -44,14 +41,17 @@ func (s Service) Send(m messaging.Message) error {
 	return e
 }
 
-func New(cfg *config.Configuration) *Service {
+// New instantiates a new messenger
+func New(cfg *config.Configuration) (*Service, error) {
 
-	senders := map[string]messaging.Sender{}
-
+	senders, err := newDefaultSettings(cfg)
+	if err != nil {
+		return nil, err
+	}
 	mng := &Service{
 		cfg:     cfg,
 		senders: senders,
 	}
 
-	return mng
+	return mng, nil
 }

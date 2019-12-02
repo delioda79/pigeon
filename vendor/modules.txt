@@ -24,10 +24,12 @@ github.com/beatlabs/patron/encoding/protobuf
 github.com/beatlabs/patron/errors
 github.com/beatlabs/patron/log
 github.com/beatlabs/patron/log/zerolog
+github.com/beatlabs/patron/reliability/circuitbreaker
 github.com/beatlabs/patron/sync
 github.com/beatlabs/patron/sync/http
 github.com/beatlabs/patron/sync/http/auth
 github.com/beatlabs/patron/trace
+github.com/beatlabs/patron/trace/http
 # github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
 github.com/beorn7/perks/quantile
 # github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd
@@ -69,6 +71,8 @@ github.com/matttproud/golang_protobuf_extensions/pbutil
 github.com/mitchellh/go-homedir
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
+# github.com/opentracing-contrib/go-stdlib v0.0.0-20180313041242-367231351874
+github.com/opentracing-contrib/go-stdlib/nethttp
 # github.com/opentracing/opentracing-go v0.0.0-20180606204148-bd9c31933947
 github.com/opentracing/opentracing-go
 github.com/opentracing/opentracing-go/ext
@@ -102,8 +106,6 @@ github.com/rs/zerolog
 github.com/rs/zerolog/internal/json
 # github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
-# github.com/subosito/twilio v0.0.1
-github.com/subosito/twilio
 # github.com/uber/jaeger-client-go v2.14.0+incompatible
 github.com/uber/jaeger-client-go
 github.com/uber/jaeger-client-go/config
