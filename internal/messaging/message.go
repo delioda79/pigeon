@@ -13,7 +13,14 @@ type Message struct {
 	Type     string
 }
 
+// MessageResource represents a sent message
+type MessageResource struct {
+	Message
+	Status     string
+	ProviderID string
+}
+
 // Sender is a provider which is able to send messages
 type Sender interface {
-	Send(message Message) error
+	Send(message Message) (MessageResource, error)
 }

@@ -21,7 +21,7 @@ type Twilio struct {
 }
 
 // Send sends a message through twilio
-func (tp *Twilio) Send(m messaging.Message) error {
+func (tp *Twilio) Send(m messaging.Message) (messaging.MessageResource, error) {
 
 	mc := twilio.MessageCreate{
 		To:             m.Receiver,
@@ -32,14 +32,14 @@ func (tp *Twilio) Send(m messaging.Message) error {
 	switch m.Type {
 	case messaging.TimeCriticalSMS:
 		mc.From = tp.cfg.TwilioTimeCriticalPool.Get()
-		_, err := tp.cl.Send(mc)
+		rsp, err := tp.cl.Send(mc)
 		if err != nil {
-			return err
+			return messaging.MessageResource{}, err
 		}
-		return nil
+		return messaging.MessageResource{Message: m, Status: rsp.Status, ProviderID: rsp.SID}, nil
 	}
 
-	return errors.New(unknownType)
+	return messaging.MessageResource{}, errors.New(unknownType)
 }
 
 // New creates a new twilio provider

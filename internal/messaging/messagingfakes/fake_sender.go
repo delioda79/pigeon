@@ -8,22 +8,24 @@ import (
 )
 
 type FakeSender struct {
-	SendStub        func(messaging.Message) error
+	SendStub        func(messaging.Message) (messaging.MessageResource, error)
 	sendMutex       sync.RWMutex
 	sendArgsForCall []struct {
 		arg1 messaging.Message
 	}
 	sendReturns struct {
-		result1 error
+		result1 messaging.MessageResource
+		result2 error
 	}
 	sendReturnsOnCall map[int]struct {
-		result1 error
+		result1 messaging.MessageResource
+		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeSender) Send(arg1 messaging.Message) error {
+func (fake *FakeSender) Send(arg1 messaging.Message) (messaging.MessageResource, error) {
 	fake.sendMutex.Lock()
 	ret, specificReturn := fake.sendReturnsOnCall[len(fake.sendArgsForCall)]
 	fake.sendArgsForCall = append(fake.sendArgsForCall, struct {
@@ -35,10 +37,10 @@ func (fake *FakeSender) Send(arg1 messaging.Message) error {
 		return fake.SendStub(arg1)
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
 	fakeReturns := fake.sendReturns
-	return fakeReturns.result1
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeSender) SendCallCount() int {
@@ -47,7 +49,7 @@ func (fake *FakeSender) SendCallCount() int {
 	return len(fake.sendArgsForCall)
 }
 
-func (fake *FakeSender) SendCalls(stub func(messaging.Message) error) {
+func (fake *FakeSender) SendCalls(stub func(messaging.Message) (messaging.MessageResource, error)) {
 	fake.sendMutex.Lock()
 	defer fake.sendMutex.Unlock()
 	fake.SendStub = stub
@@ -60,27 +62,30 @@ func (fake *FakeSender) SendArgsForCall(i int) messaging.Message {
 	return argsForCall.arg1
 }
 
-func (fake *FakeSender) SendReturns(result1 error) {
+func (fake *FakeSender) SendReturns(result1 messaging.MessageResource, result2 error) {
 	fake.sendMutex.Lock()
 	defer fake.sendMutex.Unlock()
 	fake.SendStub = nil
 	fake.sendReturns = struct {
-		result1 error
-	}{result1}
+		result1 messaging.MessageResource
+		result2 error
+	}{result1, result2}
 }
 
-func (fake *FakeSender) SendReturnsOnCall(i int, result1 error) {
+func (fake *FakeSender) SendReturnsOnCall(i int, result1 messaging.MessageResource, result2 error) {
 	fake.sendMutex.Lock()
 	defer fake.sendMutex.Unlock()
 	fake.SendStub = nil
 	if fake.sendReturnsOnCall == nil {
 		fake.sendReturnsOnCall = make(map[int]struct {
-			result1 error
+			result1 messaging.MessageResource
+			result2 error
 		})
 	}
 	fake.sendReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
+		result1 messaging.MessageResource
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeSender) Invocations() map[string][][]interface{} {

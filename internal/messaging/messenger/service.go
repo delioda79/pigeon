@@ -20,8 +20,7 @@ type Service struct {
 }
 
 // Send uses teh correct provider to send messages
-func (s Service) Send(m messaging.Message) error {
-	var e error
+func (s Service) Send(m messaging.Message) (rs messaging.MessageResource, e error) {
 	var provider string
 
 	start := time.Now()
@@ -29,16 +28,16 @@ func (s Service) Send(m messaging.Message) error {
 	switch m.Type {
 	case messaging.TimeCriticalSMS:
 		provider = twilioProvider
-		e = s.senders.twilio.Send(m)
+		rs, e = s.senders.twilio.Send(m)
 	default:
 		ObserveCount(unknownProvider, unknownProvider, false)
-		return errors.New(fmt.Sprintf("Unknown type %s", m.Type))
+		return messaging.MessageResource{}, errors.New(fmt.Sprintf("Unknown type %s", m.Type))
 	}
 
 	ObserveLatency(m.Type, provider, time.Since(start))
 	ObserveCount(m.Type, provider, true)
 
-	return e
+	return rs, e
 }
 
 // New instantiates a new messenger

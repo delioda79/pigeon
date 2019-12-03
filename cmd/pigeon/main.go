@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/beatlabs/patron/async"
+	"github.com/beatlabs/patron/async/kafka"
 	"github.com/taxibeat/pigeon/internal/config"
+	"github.com/taxibeat/pigeon/internal/ingestion/http"
+	"github.com/taxibeat/pigeon/internal/messaging/messenger"
 	"os"
 
 	"github.com/beatlabs/patron"
 	"github.com/beatlabs/patron/log"
 
-	"github.com/beatlabs/patron/async"
-
-	"github.com/beatlabs/patron/async/kafka"
 	"github.com/joho/godotenv"
 )
 
@@ -56,9 +57,18 @@ func init() {
 
 func main() {
 
-	//log.Fatalf("Config: %+v", cfg)
+	log.Fatalf("Config: %+v", cfg)
 
 	var oo []patron.OptionFunc
+
+	sdr, err := messenger.New(cfg)
+	if err != nil {
+		log.Fatalf("failed to create new messenger: %v", err)
+	}
+
+	rndp := http.New(sdr)
+
+	oo = append(oo, patron.Routes(rndp.Routes()))
 
 	// Set up Kafka
 	kafkaCf, err := kafka.New(name, cfg.KafkaTopic.Get(), cfg.KafkaGroup.Get(), []string{cfg.KafkaBroker.Get()})

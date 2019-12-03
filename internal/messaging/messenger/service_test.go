@@ -12,8 +12,9 @@ func TestSend(t *testing.T) {
 	cfg := &config.Configuration{}
 	cfg.TwilioTimeCriticalPool.Set("first")
 
+	msgRs := messaging.MessageResource{Status: "received", ProviderID: "1"}
+
 	firstSender := &messagingfakes.FakeSender{}
-	firstSender.SendReturns(nil)
 
 	senders := &settings{
 		twilio: firstSender,
@@ -21,13 +22,13 @@ func TestSend(t *testing.T) {
 
 	mng := Service{cfg, senders}
 
-	err := mng.Send(messaging.Message{Type: messaging.TimeCriticalSMS})
+	msgRs.Type = messaging.TimeCriticalSMS
+	firstSender.SendReturns(msgRs, nil)
+	rs, err := mng.Send(messaging.Message{Type: messaging.TimeCriticalSMS})
 	assert.Nil(t, err)
+	assert.Equal(t, rs, msgRs)
 
-	err = mng.Send(messaging.Message{Type: "unknownProvider"})
+	rs, err = mng.Send(messaging.Message{Type: "unknownProvider"})
 	assert.NotNil(t, err)
-
-	cfg.TwilioTimeCriticalPool.Set("first")
-	err = mng.Send(messaging.Message{Type: messaging.TimeCriticalSMS})
-	assert.Nil(t, err)
+	assert.Equal(t, rs, messaging.MessageResource{})
 }

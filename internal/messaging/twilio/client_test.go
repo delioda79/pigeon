@@ -31,8 +31,9 @@ func TestSend(t *testing.T) {
 		Type:     messaging.TimeCriticalSMS,
 	}
 
-	err := tw.Send(msg)
+	rs, err := tw.Send(msg)
 	assert.Nil(t, err)
+	assert.Equal(t, messaging.MessageResource{msg, "", ""}, rs)
 
 	mc := psms.SendArgsForCall(0)
 
@@ -50,9 +51,9 @@ func TestError(t *testing.T) {
 
 	tw := Twilio{cl: psms, cfg: cfg}
 
-	err := tw.Send(messaging.Message{Type: messaging.TimeCriticalSMS})
+	_, err := tw.Send(messaging.Message{Type: messaging.TimeCriticalSMS})
 	assert.EqualError(t, err, "wrong")
 
-	err = tw.Send(messaging.Message{})
+	_, err = tw.Send(messaging.Message{})
 	assert.EqualError(t, err, unknownType)
 }
