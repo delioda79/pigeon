@@ -102,7 +102,7 @@ node('slave') {
 
     stage("Helm lint") {
         try {
-            helmUtils.helmLint("${kubeconfigIdMgmt}", "infra/delpoy/helm/charts/pigeon")
+            helmUtils.helmLint("${kubeconfigIdMgmt}", "infra/delpoy/helm/pigeon")
         } catch(e) {
             println("Exception on Helm linting")
             println(e.toString())
@@ -113,7 +113,7 @@ node('slave') {
     }
 
     stage("Helm Build Package") {
-        helmUtils.helmPackage("${kubeconfigIdMgmt}", "infra/delpoy/helm/charts/pigeon", "${helmTag}")
+        helmUtils.helmPackage("${kubeconfigIdMgmt}", "infra/delpoy/helm/pigeon", "${helmTag}")
     }
 
     stage("Push helm package to chartmuseum") {
