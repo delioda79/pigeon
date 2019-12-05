@@ -68,7 +68,7 @@ node('slave') {
         } catch(e) {
             println("Exception on cloning repository")
             println(e.toString())
-            def message = "deployment failed on ` + "`${STAGE_NAME}`" + ` at ${stacks} for ${project} &lt;${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
+            def message = "deployment failed on `${STAGE_NAME}` at ${stacks} for ${project} <${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
             notificationUtils.slackNotify('FAILURE', slackChannel, slackToken, message)
             throw e
         }
