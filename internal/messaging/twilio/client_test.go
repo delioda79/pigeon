@@ -21,14 +21,15 @@ func TestSend(t *testing.T) {
 	cfg.RestURL.Set("REST")
 	cfg.TwilioCallBack.Set("/path")
 	cfg.TwilioTimeCriticalPool.Set("pool1")
+	cfg.TwilioNonTimeCriticalPool.Set("pool1")
 
 	tw := Twilio{cl: psms, cfg: cfg}
 
 	msg := messaging.Message{
-		ID:       "a1234",
-		Content:  "Hello there",
-		Receiver: "receiver1",
-		Type:     messaging.TimeCriticalSMS,
+		ID:        "a1234",
+		Content:   "Hello there",
+		Recipient: "receiver1",
+		Critical:  true,
 	}
 
 	rs, err := tw.Send(msg)
@@ -39,21 +40,24 @@ func TestSend(t *testing.T) {
 
 	assert.Equal(t, mc.Body, msg.Content)
 	assert.Equal(t, mc.From, cfg.TwilioTimeCriticalPool.Get())
-	assert.Equal(t, mc.To, msg.Receiver)
+	assert.Equal(t, mc.To, msg.Recipient)
 	assert.Equal(t, mc.StatusCallback, fmt.Sprintf("REST/path/%s", msg.ID))
 }
 
 func TestError(t *testing.T) {
 	psms := &twiliofakes.FakeProgrammableSMS{}
-	psms.SendReturns(twilio.MessageResource{}, errors.New("wrong"))
+	psms.SendReturns(twilio.MessageResource{}, errors.New(notImplemented))
 
 	cfg := &config.Configuration{}
 
 	tw := Twilio{cl: psms, cfg: cfg}
 
-	_, err := tw.Send(messaging.Message{Type: messaging.TimeCriticalSMS})
-	assert.EqualError(t, err, "wrong")
+	_, err := tw.Send(messaging.Message{Critical: true})
+	assert.EqualError(t, err, notImplemented)
+
+	_, err = tw.Send(messaging.Message{Critical: true})
+	assert.EqualError(t, err, notImplemented)
 
 	_, err = tw.Send(messaging.Message{})
-	assert.EqualError(t, err, unknownType)
+	assert.EqualError(t, err, notImplemented)
 }

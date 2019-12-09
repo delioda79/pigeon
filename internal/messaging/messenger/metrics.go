@@ -14,7 +14,7 @@ var (
 			Name:      "handled_messages",
 			Help:      "Counts every time a message gets receiver by the messenger",
 		},
-		[]string{"type", "provider", "success"},
+		[]string{"type", "provider", "success", "time_critical"},
 	)
 
 	messageProcessingLatency = prometheus.NewHistogramVec(
@@ -24,7 +24,7 @@ var (
 			Name:      "latency_seconds",
 			Help:      "Latency of ingested messages processing",
 		},
-		[]string{"type", "provider"},
+		[]string{"type", "provider", "time_critical"},
 	)
 )
 
@@ -34,11 +34,11 @@ func init() {
 }
 
 // ObserveCount is responsible to count distance matrix calls
-func ObserveCount(mType, provider string, success bool) {
-	messageCounter.WithLabelValues(mType, provider, strconv.FormatBool(success)).Inc()
+func ObserveCount(mType, provider string, success, timeCritical bool) {
+	messageCounter.WithLabelValues(mType, provider, strconv.FormatBool(success), strconv.FormatBool(timeCritical)).Inc()
 }
 
 // ObserveLatency is responsible to observe latency.
-func ObserveLatency(mType, provider string, latency time.Duration) {
-	messageProcessingLatency.WithLabelValues(mType, provider).Observe(latency.Seconds())
+func ObserveLatency(mType, provider string, timeCritical bool, latency time.Duration) {
+	messageProcessingLatency.WithLabelValues(mType, provider, strconv.FormatBool(timeCritical)).Observe(latency.Seconds())
 }

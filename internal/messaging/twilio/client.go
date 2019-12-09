@@ -2,7 +2,6 @@ package twilio
 
 import (
 	"fmt"
-	"github.com/beatlabs/patron/errors"
 	phttp "github.com/beatlabs/patron/trace/http"
 	"github.com/taxibeat/pigeon/internal/config"
 	"github.com/taxibeat/pigeon/internal/messaging"
@@ -11,7 +10,7 @@ import (
 )
 
 const (
-	unknownType = "unknown message type"
+	notImplemented = "not implemented"
 )
 
 // Twilio is the messaging provider for teh twilio sms service
@@ -24,22 +23,22 @@ type Twilio struct {
 func (tp *Twilio) Send(m messaging.Message) (messaging.MessageResource, error) {
 
 	mc := twilio.MessageCreate{
-		To:             m.Receiver,
+		To:             m.Recipient,
 		Body:           m.Content,
 		StatusCallback: fmt.Sprintf("%s%s/%s", tp.cfg.RestURL.Get(), tp.cfg.TwilioCallBack.Get(), m.ID),
 	}
 
-	switch m.Type {
-	case messaging.TimeCriticalSMS:
+	if !m.Critical {
+		mc.From = tp.cfg.TwilioNonTimeCriticalPool.Get()
+	} else {
 		mc.From = tp.cfg.TwilioTimeCriticalPool.Get()
-		rsp, err := tp.cl.Send(mc)
-		if err != nil {
-			return messaging.MessageResource{}, err
-		}
-		return messaging.MessageResource{Message: m, Status: rsp.Status, ProviderID: rsp.SID}, nil
 	}
 
-	return messaging.MessageResource{}, errors.New(unknownType)
+	rsp, err := tp.cl.Send(mc)
+	if err != nil {
+		return messaging.MessageResource{}, err
+	}
+	return messaging.MessageResource{Message: m, Status: rsp.Status, ProviderID: rsp.SID}, nil
 }
 
 // New creates a new twilio provider

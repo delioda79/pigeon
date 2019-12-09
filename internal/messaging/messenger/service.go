@@ -1,8 +1,6 @@
 package messenger
 
 import (
-	"fmt"
-	"github.com/beatlabs/patron/errors"
 	"github.com/taxibeat/pigeon/internal/config"
 	"github.com/taxibeat/pigeon/internal/messaging"
 	"time"
@@ -22,20 +20,19 @@ type Service struct {
 // Send uses teh correct provider to send messages
 func (s Service) Send(m messaging.Message) (rs messaging.MessageResource, e error) {
 	var provider string
+	var timeCritical bool
 
-	start := time.Now()
+	provider = twilioProvider
 
-	switch m.Type {
-	case messaging.TimeCriticalSMS:
-		provider = twilioProvider
-		rs, e = s.senders.twilio.Send(m)
-	default:
-		ObserveCount(unknownProvider, unknownProvider, false)
-		return messaging.MessageResource{}, errors.New(fmt.Sprintf("Unknown type %s", m.Type))
+	if m.Critical {
+		timeCritical = true
 	}
 
-	ObserveLatency(m.Type, provider, time.Since(start))
-	ObserveCount(m.Type, provider, true)
+	start := time.Now()
+	rs, e = s.senders.twilio.Send(m)
+
+	ObserveLatency("sms", provider, timeCritical, time.Since(start))
+	ObserveCount("sms", provider, true, timeCritical)
 
 	return rs, e
 }

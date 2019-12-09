@@ -7,24 +7,24 @@ import (
 	"testing"
 )
 
-func TestNewCOnfiguration(t *testing.T) {
+func TestNewConfiguration(t *testing.T) {
 	os.Setenv("PIGEON_KAFKA_BROKER", "testbroker")
 	os.Setenv("PIGEON_KAFKA_GROUP", "testgroup")
-	os.Setenv("PIGEON_KAFKA_TOPIC", "testtopic")
+	os.Setenv("PIGEON_KAFKA_TOPIC_TIME_CRITICAL", "testtopic")
 	cfg := &Configuration{}
 	h, e := NewConfig(cfg)
 
 	assert.Nil(t, e)
 	assert.Equal(t, "", cfg.KafkaBroker.Get())
 	assert.Equal(t, "", cfg.KafkaGroup.Get())
-	assert.Equal(t, "", cfg.KafkaTopic.Get())
+	assert.Equal(t, "", cfg.KafkaTimeCriticalTopic.Get())
 	assert.Equal(t, "", cfg.TwilioTimeCriticalPool.Get())
 
 	h.Harvest(context.Background())
 
 	assert.Equal(t, "testbroker", cfg.KafkaBroker.Get())
 	assert.Equal(t, "testgroup", cfg.KafkaGroup.Get())
-	assert.Equal(t, "testtopic", cfg.KafkaTopic.Get())
+	assert.Equal(t, "testtopic", cfg.KafkaTimeCriticalTopic.Get())
 	assert.Equal(t, "", cfg.TwilioTimeCriticalPool.Get())
 }
 

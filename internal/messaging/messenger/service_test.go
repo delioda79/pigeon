@@ -1,6 +1,7 @@
 package messenger
 
 import (
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/taxibeat/pigeon/internal/config"
 	"github.com/taxibeat/pigeon/internal/messaging"
@@ -22,13 +23,25 @@ func TestSend(t *testing.T) {
 
 	mng := Service{cfg, senders}
 
-	msgRs.Type = messaging.TimeCriticalSMS
+	msgRs.Critical = true
 	firstSender.SendReturns(msgRs, nil)
-	rs, err := mng.Send(messaging.Message{Type: messaging.TimeCriticalSMS})
+	rs, err := mng.Send(messaging.Message{Critical: true})
 	assert.Nil(t, err)
 	assert.Equal(t, rs, msgRs)
+	rsp := firstSender.SendArgsForCall(0)
+	assert.Equal(t, rsp.Critical, true)
 
-	rs, err = mng.Send(messaging.Message{Type: "unknownProvider"})
+	msgRs.Critical = false
+	firstSender.SendReturns(msgRs, nil)
+	rs, err = mng.Send(messaging.Message{Critical: false})
+	assert.Nil(t, err)
+	assert.Equal(t, rs, msgRs)
+	rsp = firstSender.SendArgsForCall(1)
+	assert.Equal(t, rsp.Critical, false)
+
+	firstSender.SendReturns(messaging.MessageResource{}, errors.New("an error"))
+
+	rs, err = mng.Send(messaging.Message{Critical: false})
 	assert.NotNil(t, err)
 	assert.Equal(t, rs, messaging.MessageResource{})
 }

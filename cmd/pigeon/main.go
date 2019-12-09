@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/beatlabs/patron/async"
-	"github.com/beatlabs/patron/async/kafka"
 	"github.com/taxibeat/pigeon/internal/config"
 	"github.com/taxibeat/pigeon/internal/ingestion/http"
+	"github.com/taxibeat/pigeon/internal/ingestion/kafka"
 	"github.com/taxibeat/pigeon/internal/messaging/messenger"
 	"os"
 
@@ -46,7 +45,7 @@ func init() {
 		log.Fatalf("No value defined for kafka broker")
 	}
 
-	if cfg.KafkaTopic.Get() == "" {
+	if cfg.KafkaTimeCriticalTopic.Get() == "" {
 		log.Fatalf("No value defined for kafka topic")
 	}
 
@@ -57,8 +56,6 @@ func init() {
 
 func main() {
 
-	log.Fatalf("Config: %+v", cfg)
-
 	var oo []patron.OptionFunc
 
 	sdr, err := messenger.New(cfg)
@@ -66,22 +63,26 @@ func main() {
 		log.Fatalf("failed to create new messenger: %v", err)
 	}
 
-	rndp := http.New(sdr)
+	if cfg.HTTPEnabled.Get() {
+		rndp := http.New(sdr)
 
-	oo = append(oo, patron.Routes(rndp.Routes()))
+		oo = append(oo, patron.Routes(rndp.Routes()))
+	}
 
 	// Set up Kafka
-	kafkaCf, err := kafka.New(name, cfg.KafkaTopic.Get(), cfg.KafkaGroup.Get(), []string{cfg.KafkaBroker.Get()})
-	if err != nil {
-		log.Fatalf("failed to create kafka consumer factory: %v", err)
-	}
+	if cfg.KafkaConsumerEnabled.Get() {
+		kfkTimeCrCmp, err := kafka.New(name, true, cfg, sdr)
+		if err != nil {
+			log.Fatalf("failed to create kafka async component: %v", err)
+		}
 
-	kafkaCmp, err := async.New("RENAME", func(m async.Message) error { return nil }, kafkaCf)
-	if err != nil {
-		log.Fatalf("failed to create kafka async component: %v", err)
-	}
+		kfkNonTimeCrCmp, err := kafka.New(name, false, cfg, sdr)
+		if err != nil {
+			log.Fatalf("failed to create kafka async component: %v", err)
+		}
 
-	oo = append(oo, patron.Components(kafkaCmp))
+		oo = append(oo, patron.Components(kfkTimeCrCmp, kfkNonTimeCrCmp))
+	}
 
 	srv, err := patron.New(name, version, oo...)
 	if err != nil {
