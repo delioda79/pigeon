@@ -81,7 +81,7 @@ livenessProbe:
     port: 50000
 
 autoscaling:
-  enabled: false
+  enabled: true
    minReplicas: 1
    maxReplicas: 10
    metrics:
