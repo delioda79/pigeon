@@ -82,17 +82,17 @@ livenessProbe:
 
 autoscaling:
   enabled: true
-   minReplicas: 1
-   maxReplicas: 10
-   metrics:
-   - type: Resource
-     resource:
-       name: cpu
-       targetAverageUtilization: 80
-   - type: Resource
-     resource:
-       name: memory
-       targetAverageUtilization: 80
+  minReplicas: 3
+  maxReplicas: 35
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 80
 
 nodeSelector: {}
 
