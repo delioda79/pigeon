@@ -122,6 +122,7 @@ node('slave') {
 
     stage("Deploy helm chart") {
         for (stack in stacks) {
+            def setList = ""
             if (prod) {
                 envVarMapping = stackUtils.stackVariables(stack)
                 helmName = "pigeon"
@@ -137,11 +138,19 @@ node('slave') {
                 withCredentials([
                     string(credentialsId: 'REST_X_SECURE_ROUTE_KEY', variable: 'restSecureRouteKey'),
                 ]) {
-                    def setList = " --set image.tag=${branchOrTag} \
+                    setList = setList + " --set image.tag=${branchOrTag} \
                                     --set ingress.clusterSuffix=private.k8s.${envVarMapping.KUBERNETES_CLUSTER} \
                                     --set ingress.host=${host} \
                                     --set main.version=${version} \
                                     --set changeCause=Jenkins=\"${RUN_DISPLAY_URL} Commiter=${commiter}\" "
+                    if (prod) {
+                        helmName = "pigeon"
+                    } else {
+                        setList = setList + " --set ingress.host=${stack}-pigeon \
+                                              --set replicaCount=1 \
+                                              --set autoscaling.enabled=false "
+                        helmName = "pigeon-${stack}"
+                    }
 
                     helmUtils.helmDeploy("${kubeconfigId}", "${helmTag}", "${namespace}", "${setList}", "${helmName}", "beat/pigeon")
 
