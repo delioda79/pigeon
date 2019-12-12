@@ -31,8 +31,8 @@ func (s Service) Send(m messaging.Message) (rs messaging.MessageResource, e erro
 	start := time.Now()
 	rs, e = s.senders.twilio.Send(m)
 
-	ObserveLatency("sms", provider, timeCritical, time.Since(start))
-	ObserveCount("sms", provider, true, timeCritical)
+	ObserveLatency("sms", provider, e == nil, timeCritical, time.Since(start))
+	ObserveCount("sms", provider, e == nil, timeCritical)
 
 	return rs, e
 }

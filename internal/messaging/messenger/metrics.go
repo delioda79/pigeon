@@ -24,7 +24,7 @@ var (
 			Name:      "latency_seconds",
 			Help:      "Latency of ingested messages processing",
 		},
-		[]string{"type", "provider", "time_critical"},
+		[]string{"type", "provider", "success", "time_critical"},
 	)
 )
 
@@ -39,6 +39,6 @@ func ObserveCount(mType, provider string, success, timeCritical bool) {
 }
 
 // ObserveLatency is responsible to observe latency.
-func ObserveLatency(mType, provider string, timeCritical bool, latency time.Duration) {
-	messageProcessingLatency.WithLabelValues(mType, provider, strconv.FormatBool(timeCritical)).Observe(latency.Seconds())
+func ObserveLatency(mType, provider string, success, timeCritical bool, latency time.Duration) {
+	messageProcessingLatency.WithLabelValues(mType, provider, strconv.FormatBool(success), strconv.FormatBool(timeCritical)).Observe(latency.Seconds())
 }
