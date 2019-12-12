@@ -160,7 +160,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(pigeon_messaging_http_requests{status_code=\"201\"}[5m])) by (provider)",
+          "expr": "sum(rate(pigeon_messaging_http_requests{status_code=~\"2[0-9]{2}\"}[5m])) by (provider)",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -168,7 +168,7 @@
           "refId": "A"
         },
         {
-          "expr": "sum(rate(pigeon_messaging_http_requests{status_code=\"201\"}[5m])) by (url, method, provider)",
+          "expr": "sum(rate(pigeon_messaging_http_requests{status_code=~\"2[0-9]{2}\"}[5m])) by (url, method, provider)",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{method}}-{{provider}}-{{url}}",
@@ -363,7 +363,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "100 * sum(rate(pigeon_messaging_http_requests{status_code!~\"(201|200)\"}[5m])) by (provider) / sum(rate(pigeon_messaging_http_requests[5m])) by (provider)",
+          "expr": "100 * sum(rate(pigeon_messaging_http_requests{status_code!~\"2[0-9]{2}\"}[5m])) by (provider) / sum(rate(pigeon_messaging_http_requests[5m])) by (provider)",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -563,7 +563,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum  by (le, provider) (rate(pigeon_messaging_latency_seconds_bucket{status_code=\"201\"}[5m])))",
+          "expr": " histogram_quantile(0.95, sum  by (le, provider) (rate(pigeon_messaging_latency_seconds_bucket{status_code=~\"2[0-9]{2}\"}[5m])))",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -571,7 +571,7 @@
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.95, sum  by (le, url, method, provider) (rate(pigeon_messaging_latency_seconds_bucket{status_code=\"201\"}[5m])))",
+          "expr": "histogram_quantile(0.95, sum  by (le, url, method, provider) (rate(pigeon_messaging_latency_seconds_bucket{status_code=~\"2[0-9]{2}\"}[5m])))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{provider}}-{{method}}-{{url}}",
@@ -846,7 +846,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(pigeon_messaging_http_requests{status_code!~\"(201|200)\"}[5m])) by (provider, status_code)",
+          "expr": "sum(rate(pigeon_messaging_http_requests{status_code!~\"2[0-9]{2}\"}[5m])) by (provider, status_code)",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -904,7 +904,7 @@
     "list": []
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -924,5 +924,5 @@
   "timezone": "",
   "title": "Pigeon Overview",
   "uid": "CXvMkj-Zk",
-  "version": 5
+  "version": 9
 }
