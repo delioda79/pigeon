@@ -11,6 +11,7 @@ import (
 
 const (
 	notImplemented = "not implemented"
+	providerName   = "twilio"
 )
 
 // Twilio is the messaging provider for teh twilio sms service
@@ -49,7 +50,7 @@ func New(cfg *config.Configuration) (*Twilio, error) {
 		return nil, err
 	}
 
-	tcl := messaging.NewHTTPClient(pcl)
+	tcl := messaging.NewHTTPClient(pcl, providerName)
 
 	cl, _ := progrsms.New(tcl, cfg.TwilioSID.Get(), cfg.TwilioToken.Get(), "")
 

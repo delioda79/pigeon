@@ -25,7 +25,7 @@ func TestHTTPClient_Do(t *testing.T) {
 		rw.WriteHeader(200)
 		rw.Write([]byte("hello"))
 	}))
-	cl := NewHTTPClient(bcl)
+	cl := NewHTTPClient(bcl, "testprovider")
 	rq, _ := http.NewRequest("GET", rs.URL, nil)
 	rsp, err := cl.Do(context.Background(), rq)
 	assert.Nil(t, err)
@@ -36,7 +36,7 @@ func TestHTTPClient_Do(t *testing.T) {
 }
 
 func TestClientError(t *testing.T) {
-	cl := NewHTTPClient(&mkcl{})
+	cl := NewHTTPClient(&mkcl{}, "testprovider")
 	rq, _ := http.NewRequest("GET", "", nil)
 	rsp, err := cl.Do(context.Background(), rq)
 	assert.Nil(t, rsp)

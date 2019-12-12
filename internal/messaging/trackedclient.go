@@ -35,6 +35,6 @@ func (tcl *HTTPClient) Do(ctx context.Context, req *http.Request) (*http.Respons
 }
 
 // NewHTTPClient returns a new client
-func NewHTTPClient(cl phttp.Client) *HTTPClient {
-	return &HTTPClient{cl: cl}
+func NewHTTPClient(cl phttp.Client, pr string) *HTTPClient {
+	return &HTTPClient{cl: cl, provider: pr}
 }
