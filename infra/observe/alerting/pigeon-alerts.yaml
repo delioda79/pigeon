@@ -1,0 +1,30 @@
+groups:
+  - name: pigeon.rules
+    rules:
+      - alert: PigeonTooManyHTTPUnexpectedErrorsWarn
+        expr: sum(rate(pigeon_messaging_http_requests{status_code!~"2[0-9]{2}|400"}[5m])) / sum(rate(pigeon_messaging_http_requests[5m])) > 0.001
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pigeon HTTP client error rate (excl 400)"
+          description: "Alert when Pigeon http client error rate, excluding 400 errors, is above the warning threshold of 0.1% in the last 5 minutes"
+          #runbook: https://github.com/taxibeat/runbooks/blob/master/services/05_sonar_switch_off.md
+      - alert: PigeonTooManyHTTPUnexpectedErrorsCritical
+        expr: sum(rate(pigeon_messaging_http_requests{status_code!~"2[0-9]{2}|400"}[5m])) / sum(rate(pigeon_messaging_http_requests[5m])) > 0.01
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pigeon HTTP client error rate (excl 400)"
+          description: "Alert when Pigeon http client error rate, excluding 400 errors, is above the critical threshold of 1% in the last 15 minutes"
+          #runbook: https://github.com/taxibeat/runbooks/blob/master/services/05_sonar_switch_off.md
+      - alert: PigeonTooManyHTTPErrorsCritical
+        expr: sum(rate(pigeon_messaging_http_requests{status_code!~"2[0-9]{2}"}[5m])) / sum(rate(pigeon_messaging_http_requests[5m])) > 0.2
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pigeon HTTP client error rate (incl 400)"
+          description: "Alert when Pigeon http client error rate, including 400 errors, is above the critical threshold of 20% in the last 5 minutes"
+          #runbook: https://github.com/taxibeat/runbooks/blob/master/services/05_sonar_switch_off.md
