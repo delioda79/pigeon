@@ -55,7 +55,7 @@ func (cl *Client) Send(m twilio.MessageCreate) (twilio.MessageResource, error) {
 		return twilio.MessageResource{}, err
 	}
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		var data *twilio.MessageResource
+		data := &twilio.MessageResource{}
 		decoder := json.NewDecoder(resp.Body)
 		if decoder.Decode(&data); err != nil {
 			return twilio.MessageResource{}, errors.Errorf("Impossible unmarshal response: %v", err)

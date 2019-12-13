@@ -24,9 +24,12 @@ type Twilio struct {
 func (tp *Twilio) Send(m messaging.Message) (messaging.MessageResource, error) {
 
 	mc := twilio.MessageCreate{
-		To:             m.Recipient,
-		Body:           m.Content,
-		StatusCallback: fmt.Sprintf("%s%s/%s", tp.cfg.RestURL.Get(), tp.cfg.TwilioCallBack.Get(), m.ID),
+		To:   m.Recipient,
+		Body: m.Content,
+	}
+
+	if m.ID != "" {
+		mc.StatusCallback = fmt.Sprintf("%s%s/%s", tp.cfg.RestURL.Get(), tp.cfg.TwilioCallBack.Get(), m.ID)
 	}
 
 	if !m.Critical {

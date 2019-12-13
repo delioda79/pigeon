@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	base = "/message"
+	base = "/v1/message"
 )
 
 // Ingestion represents a handler for messaging requests ingestion
