@@ -127,10 +127,12 @@ node('slave') {
                 envVarMapping = stackUtils.stackVariables(stack)
                 helmName = "pigeon"
                 host = "pigeon"
+                pigeon_rest_endpoint_env = "https://rest${envVarMapping.SUFFIX}"
             } else {
                 envVarMapping = stackUtils.stackVariables('dev')
                 helmName = "pigeon-${stack}"
                 host = "${stack}-pigeon"
+                pigeon_rest_endpoint_env = "https://${stack}.rest.sandbox.taxibeat.com"
             }
             kubeconfigId = "KUBECONFIG_${envVarMapping.KUBERNETES_CLUSTER}"
 
@@ -143,6 +145,7 @@ node('slave') {
                                     --set ingress.clusterSuffix=private.k8s.${envVarMapping.KUBERNETES_CLUSTER} \
                                     --set ingress.host=${host} \
                                     --set main.version=${version} \
+                                    --set env.PIGEON_REST_URL=${pigeon_rest_endpoint_env} \
                                     --set changeCause=Jenkins=\"${RUN_DISPLAY_URL} Commiter=${commiter}\" "
                     if (prod) {
                         helmName = "pigeon"
