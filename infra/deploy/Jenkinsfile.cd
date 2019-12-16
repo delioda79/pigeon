@@ -137,6 +137,7 @@ node('slave') {
             try {
                 withCredentials([
                     string(credentialsId: 'REST_X_SECURE_ROUTE_KEY', variable: 'restSecureRouteKey'),
+                    usernamePassword(credentialsId: 'TWILIO_CREDS', usernameVariable: 'twilio_sid', passwordVariable: 'twilio_token'),
                 ]) {
                     setList = setList + " --set image.tag=${branchOrTag} \
                                     --set ingress.clusterSuffix=private.k8s.${envVarMapping.KUBERNETES_CLUSTER} \
@@ -145,6 +146,9 @@ node('slave') {
                                     --set changeCause=Jenkins=\"${RUN_DISPLAY_URL} Commiter=${commiter}\" "
                     if (prod) {
                         helmName = "pigeon"
+                        setList = setList + " --set env.PIGEON_TIME_CRITICAL_SMS_POOL=MG9b722c3463e25b04bc0a0676215c8f74 \
+                                        --set env.PIGEON_TWILIO_ACCOUNT_SID=$twilio_sid \
+                                        --set env.PIGEON_TWILIO_ACCOUNT_TOKEN=$twilio_token "
                     } else {
                         setList = setList + " --set ingress.host=${stack}-pigeon \
                                               --set replicaCount=1 \
