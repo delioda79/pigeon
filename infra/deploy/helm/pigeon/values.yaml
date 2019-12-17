@@ -59,12 +59,12 @@ monitoring:
   port: 50000
 
 # This will enable blackbox exporter probes in the designated path.
-# If the probe get non 2xx responses for greates than "for:" period it will sent an alert to alertmanager
+# If the probe get non 2xx responses for greater than "for:" period it will sent an alert to alertmanager
 # Alertmanager will route the notification according to severity to a slack channel or pagerduty
 blackboxProbe:
   enabled: true
   for: 5m
-  path: /health
+  path: /alive
   severity: critical
 
 readinessProbe:
