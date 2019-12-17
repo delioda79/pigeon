@@ -24,13 +24,13 @@ func (ng *Ingestion) send(ctx context.Context, request *sync.Request) (*sync.Res
 	err := request.Decode(msg)
 	if err != nil {
 		ingestion.ObserveCount("sms", "http", false, false, false, true)
-		return nil, http.NewErrorWithCodeAndPayload(400, err)
+		return nil, http.NewErrorWithCodeAndPayload(400, err.Error())
 	}
 
 	rs, err := ng.sdr.Send(*msg)
 	if err != nil {
 		ingestion.ObserveCount("sms", "http", false, msg.Critical, true, true)
-		return nil, http.NewErrorWithCodeAndPayload(400, err)
+		return nil, http.NewErrorWithCodeAndPayload(400, err.Error())
 	}
 
 	ingestion.ObserveCount("sms", "http", true, msg.Critical, true, true)
