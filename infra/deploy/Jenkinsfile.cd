@@ -159,7 +159,7 @@ node('slave') {
                                               --set replicaCount=1 \
                                               --set env.SEED_CONSUL_HTTP_ADDR=mop-consul-${stack}.mop.svc:8500 \
                                               --set env.WATCH_CONSUL_HTTP_ADDR=mop-consul-${stack}.mop.svc:8500 \
-                                              --set service.mopAnnotation=master-of-puppets.alpha.kubernetes.io/${stack}-enabled \
+                                              --set mop.annotation=master-of-puppets.alpha.kubernetes.io/${stack}-enabled \
                                               --set autoscaling.enabled=false "
                         helmName = "pigeon-${stack}"
                     }
@@ -177,25 +177,25 @@ node('slave') {
                 throw e
             }
 
-            stage('Apply Prometheus rules if available') {
+            stage('Apply Prometheus rules to ${stack} if available') {
                 try {
                     monitoringUtils.prometheusConfig("${kubeconfigId}", "${namespace}", "infra/observe/alerting")
                 } catch (e) {
                     println("Exception on applying prometheus rules")
                     println(e.toString())
-                    def message = "deployment failed on `${STAGE_NAME}` at ${stacks} for ${project} <${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
+                    def message = "deployment failed on `${STAGE_NAME}` at ${stack} for ${project} <${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
                     notificationUtils.slackNotify('FAILURE', slackChannel, slackToken, message)
                     throw e
                 }
             }
 
-            stage('Apply Grafana rules if available') {
+            stage('Apply Grafana rules  to ${stack} if available') {
                 try {
                     monitoringUtils.grafanaConfig("${kubeconfigId}", "${namespace}", "infra/observe/dashboard")
                 } catch (e) {
                     println("Exception on applying graphana rules")
                     println(e.toString())
-                    def message = "deployment failed on `${STAGE_NAME}` at ${stacks} for ${project} <${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
+                    def message = "deployment failed on `${STAGE_NAME}` at ${stack} for ${project} <${env.BUILD_URL}console|${env.BUILD_NUMBER}>"
                     notificationUtils.slackNotify('FAILURE', slackChannel, slackToken, message)
                     throw e
                 }
