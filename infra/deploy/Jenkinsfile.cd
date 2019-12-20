@@ -177,7 +177,7 @@ node('slave') {
                 throw e
             }
 
-            stage('Apply Prometheus rules to ${stack} if available') {
+            stage("Apply Prometheus rules to ${stack} if available") {
                 try {
                     monitoringUtils.prometheusConfig("${kubeconfigId}", "${namespace}", "infra/observe/alerting")
                 } catch (e) {
@@ -189,7 +189,7 @@ node('slave') {
                 }
             }
 
-            stage('Apply Grafana rules  to ${stack} if available') {
+            stage("Apply Grafana rules  to ${stack} if available") {
                 try {
                     monitoringUtils.grafanaConfig("${kubeconfigId}", "${namespace}", "infra/observe/dashboard")
                 } catch (e) {
