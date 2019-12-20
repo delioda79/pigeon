@@ -1,4 +1,4 @@
-replicaCount: 1
+replicaCount: 3
 
 image:
   registry: registry.private.k8s.management.thebeat.co/beat/
@@ -21,7 +21,8 @@ env:
   PATRON_JAEGER_AGENT_PORT: 6831
   PIGEON_KAFKA_BROKER: "kafka.taxibeat.staging:9092"
   PIGEON_KAFKA_GROUP: "notification"
-  PIGEON_KAFKA_TOPIC_TIME_CRITICAL: pigeon
+  PIGEON_KAFKA_TOPIC_TIME_CRITICAL: pigeon_critical
+  PIGEON_KAFKA_TOPIC_NON_TIME_CRITICAL: pigeon_non_critical
   PIGEON_REST_URL: "http://rest.taxibeat.staging"
   PIGEON_TWILIO_CALLBACK_PATH: /callback/notification/sms/twilio
   PIGEON_TWILIO_ACCOUNT_SID: AC7fd971c3663f0feef37019f5b359b97a
@@ -30,6 +31,8 @@ env:
   PIGEON_NON_TIME_CRITICAL_SMS_POOL: ""
   PIGEON_HTTP_MESSAGE_CONSUMER_ENABLED: "true"
   PIGEON_KAFKA_MESSAGE_CONSUMER_ENABLED: "false"
+  SEED_CONSUL_HTTP_ADDR: consul:8500
+  WATCH_CONSUL_HTTP_ADDR: consul:8500
 
 ingress:
   enabled: true
@@ -99,3 +102,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+mop:
+  enabled: true
+  annotation: "master-of-puppets.alpha.kubernetes.io/enabled"

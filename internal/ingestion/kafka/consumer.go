@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"errors"
 	"github.com/beatlabs/patron/async"
 	"github.com/beatlabs/patron/async/kafka"
 	"github.com/beatlabs/patron/log"
@@ -24,11 +25,17 @@ type message struct {
 type IngestionConsumer struct {
 	critical bool
 	sender   messaging.Sender
+	cfg      *config.Configuration
 }
 
 // Process is the kafka message processor
 func (i *IngestionConsumer) Process(m async.Message) error {
 	log.Debugf("Received message %v", m)
+
+	if !i.cfg.KafkaConsumerEnabled.Get() {
+		return errors.New("kafka is disabled")
+	}
+
 	req := &message{}
 	if err := m.Decode(req); err != nil {
 		log.Debugf("Impossible to decode %v", m)
@@ -61,7 +68,7 @@ func New(name string, critical bool, cfg *config.Configuration, snd messaging.Se
 		topic = cfg.KafkaNonTimeCriticalTopic.Get()
 	}
 
-	cns := IngestionConsumer{sender: snd}
+	cns := IngestionConsumer{sender: snd, cfg: cfg}
 
 	kafkaCf, err := kafka.New(name, topic, cfg.KafkaGroup.Get(), []string{cfg.KafkaBroker.Get()})
 	if err != nil {

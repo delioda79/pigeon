@@ -7,6 +7,7 @@ import (
 	"github.com/beatlabs/patron/encoding/json"
 	"github.com/beatlabs/patron/sync"
 	"github.com/stretchr/testify/assert"
+	"github.com/taxibeat/pigeon/internal/config"
 	"github.com/taxibeat/pigeon/internal/messaging"
 	"github.com/taxibeat/pigeon/internal/messaging/messagingfakes"
 	"testing"
@@ -14,7 +15,8 @@ import (
 
 func TestSend(t *testing.T) {
 	sdr := &messagingfakes.FakeSender{}
-	ingrr := New(sdr)
+	cfg := &config.Configuration{}
+	ingrr := New(sdr, cfg)
 
 	bts, err := json.Encode(messaging.Message{})
 	assert.Nil(t, err)
@@ -50,7 +52,7 @@ func TestSend(t *testing.T) {
 
 func TestIngestion_Routes(t *testing.T) {
 	sdr := &messagingfakes.FakeSender{}
-	ingrr := New(sdr)
+	ingrr := New(sdr, &config.Configuration{})
 
 	assert.Len(t, ingrr.Routes(), 1)
 }

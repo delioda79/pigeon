@@ -151,10 +151,15 @@ node('slave') {
                         helmName = "pigeon"
                         setList = setList + " --set env.PIGEON_TIME_CRITICAL_SMS_POOL=MG9b722c3463e25b04bc0a0676215c8f74 \
                                         --set env.PIGEON_TWILIO_ACCOUNT_SID=$twilio_sid \
+                                        --set env.SEED_CONSUL_HTTP_ADDR=mop-consul.mop.svc:8500 \
+                                        --set env.WATCH_CONSUL_HTTP_ADDR=mop-consul.mop.svc:8500 \
                                         --set env.PIGEON_TWILIO_ACCOUNT_TOKEN=$twilio_token "
                     } else {
                         setList = setList + " --set ingress.host=${stack}-pigeon \
                                               --set replicaCount=1 \
+                                              --set env.SEED_CONSUL_HTTP_ADDR=mop-consul-${stack}.mop.svc:8500 \
+                                              --set env.WATCH_CONSUL_HTTP_ADDR=mop-consul-${stack}.mop.svc:8500 \
+                                              --set service.mopAnnotation=master-of-puppets.alpha.kubernetes.io/${stack}-enabled \
                                               --set autoscaling.enabled=false "
                         helmName = "pigeon-${stack}"
                     }

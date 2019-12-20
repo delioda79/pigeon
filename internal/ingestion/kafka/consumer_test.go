@@ -50,8 +50,10 @@ func TestNew(t *testing.T) {
 }
 
 func TestIngestionConsumer_Process(t *testing.T) {
+	cfg := &config.Configuration{}
+	cfg.KafkaConsumerEnabled.Set(true)
 	snd := &messagingfakes.FakeSender{}
-	cns := IngestionConsumer{critical: true, sender: snd}
+	cns := IngestionConsumer{critical: true, sender: snd, cfg: cfg}
 
 	msg := &KfkM{err: errors.New("wrong")}
 
@@ -69,4 +71,9 @@ func TestIngestionConsumer_Process(t *testing.T) {
 
 	assert.Equal(t, snd.SendArgsForCall(0).Critical, true)
 	assert.Equal(t, snd.SendArgsForCall(1).Critical, false)
+
+	cfg.KafkaConsumerEnabled.Set(false)
+	msg = &KfkM{err: nil, typeError: false}
+	err = cns.Process(msg)
+	assert.Error(t, err)
 }

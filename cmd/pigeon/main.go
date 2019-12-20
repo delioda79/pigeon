@@ -3,14 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/beatlabs/patron"
+	"github.com/beatlabs/patron/log"
+	http3 "github.com/beatlabs/patron/sync/http"
 	"github.com/taxibeat/pigeon/internal/config"
+	"github.com/taxibeat/pigeon/internal/config/sanitarium"
+	sanithttp "github.com/taxibeat/pigeon/internal/config/sanitarium/http"
 	"github.com/taxibeat/pigeon/internal/ingestion/http"
 	"github.com/taxibeat/pigeon/internal/ingestion/kafka"
 	"github.com/taxibeat/pigeon/internal/messaging/messenger"
 	"os"
-
-	"github.com/beatlabs/patron"
-	"github.com/beatlabs/patron/log"
 
 	"github.com/joho/godotenv"
 )
@@ -34,12 +36,10 @@ func init() {
 		log.Debugf("no .env file exists: %v", err)
 	}
 
-	h, err := config.NewConfig(cfg)
+	err = sanitarium.NewConfig(context.Background(), cfg)
 	if err != nil {
-		log.Fatalf("Impossibe to retrieve configuration: %v", err)
+		log.Fatalf("Impossible to create configuration %v", err)
 	}
-
-	h.Harvest(context.Background())
 
 	if cfg.KafkaBroker.Get() == "" {
 		log.Fatalf("No value defined for kafka broker")
@@ -57,32 +57,39 @@ func init() {
 func main() {
 
 	var oo []patron.OptionFunc
+	var rr []http3.Route
 
 	sdr, err := messenger.New(cfg)
 	if err != nil {
 		log.Fatalf("failed to create new messenger: %v", err)
 	}
 
-	if cfg.HTTPEnabled.Get() {
-		rndp := http.New(sdr)
+	rndp := http.New(sdr, cfg)
 
-		oo = append(oo, patron.Routes(rndp.Routes()))
-	}
+	rr = append(rr, rndp.Routes()...)
 
 	// Set up Kafka
-	if cfg.KafkaConsumerEnabled.Get() {
-		kfkTimeCrCmp, err := kafka.New(name, true, cfg, sdr)
-		if err != nil {
-			log.Fatalf("failed to create kafka async component: %v", err)
-		}
 
-		kfkNonTimeCrCmp, err := kafka.New(name, false, cfg, sdr)
-		if err != nil {
-			log.Fatalf("failed to create kafka async component: %v", err)
-		}
-
-		oo = append(oo, patron.Components(kfkTimeCrCmp, kfkNonTimeCrCmp))
+	kfkTimeCrCmp, err := kafka.New(name, true, cfg, sdr)
+	if err != nil {
+		log.Fatalf("failed to create kafka async component: %v", err)
 	}
+
+	kfkNonTimeCrCmp, err := kafka.New(name, false, cfg, sdr)
+	if err != nil {
+		log.Fatalf("failed to create kafka async component: %v", err)
+	}
+
+	oo = append(oo, patron.Components(kfkTimeCrCmp, kfkNonTimeCrCmp))
+
+	// Add sanitarium routes
+	sanitariumSrv, err := sanithttp.New(cfg)
+	if err != nil {
+		log.Fatalf("Cannot create HTTP component for sanitarium")
+	}
+	rr = append(rr, sanitariumSrv.GetRoutes()...)
+
+	oo = append(oo, patron.Routes(rr))
 
 	srv, err := patron.New(name, version, oo...)
 	if err != nil {

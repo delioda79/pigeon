@@ -8,6 +8,9 @@ metadata:
     prometheus.io/probe_path: {{ .Values.blackboxProbe.path }}
     prometheus.io/probe_for: {{ .Values.blackboxProbe.for }}
     prometheus.io/probe_severity: {{ .Values.blackboxProbe.severity }}
+    {{ if .Values.mop.enabled -}}
+    {{ .Values.mop.annotation }}: "true"
+    {{- end }}
   {{- end }}
   labels:
     app.kubernetes.io/name: {{ include "base-chart.name" . }}
