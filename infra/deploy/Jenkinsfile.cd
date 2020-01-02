@@ -153,6 +153,7 @@ node('slave') {
                                         --set env.PIGEON_TWILIO_ACCOUNT_SID=$twilio_sid \
                                         --set env.SEED_CONSUL_HTTP_ADDR=mop-consul.mop.svc:8500 \
                                         --set env.WATCH_CONSUL_HTTP_ADDR=mop-consul.mop.svc:8500 \
+                                        --set env.PIGEON_KAFKA_BROKER=kafka.${envVarMapping.ROUTE53_PRIVATE_DOMAIN}:9092 \
                                         --set env.PIGEON_TWILIO_ACCOUNT_TOKEN=$twilio_token "
                     } else {
                         setList = setList + " --set ingress.host=${stack}-pigeon \
