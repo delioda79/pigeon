@@ -41,7 +41,7 @@ func (h HTTP) getConfigSchema() sanitarium.Schema {
 	return sanitarium.Schema{
 		Name:        "pigeon",
 		Icon:        "",
-		Description: "Notificatipn service",
+		Description: "Notification service",
 		Static:      []sanitarium.SchemaItem{},
 		Dynamic: []sanitarium.SchemaItem{
 			{
