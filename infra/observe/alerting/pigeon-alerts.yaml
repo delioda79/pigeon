@@ -6,6 +6,7 @@ groups:
         for: 5m
         labels:
           severity: warning
+          domain: ride
         annotations:
           summary: "Pigeon HTTP client error rate (excl 400)"
           description: "Alert when Pigeon http client error rate, excluding 400 errors, is above the warning threshold of 0.1% in the last 5 minutes"
@@ -15,6 +16,7 @@ groups:
         for: 15m
         labels:
           severity: critical
+          domain: ride
         annotations:
           summary: "Pigeon HTTP client error rate (excl 400)"
           description: "Alert when Pigeon http client error rate, excluding 400 errors, is above the critical threshold of 1% in the last 15 minutes"
@@ -24,6 +26,7 @@ groups:
         for: 5m
         labels:
           severity: critical
+          domain: ride
         annotations:
           summary: "Pigeon HTTP client error rate (incl 400)"
           description: "Alert when Pigeon http client error rate, including 400 errors, is above the critical threshold of 20% in the last 5 minutes"

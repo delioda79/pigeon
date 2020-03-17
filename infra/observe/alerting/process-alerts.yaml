@@ -6,6 +6,7 @@ groups:
     for: 5m
     labels:
       severity: critical
+      domain: ride
     annotations:
       summary: "High memory usage"
 	  description: "Service consumes high memory (average > 200MiB) for the last minute."
