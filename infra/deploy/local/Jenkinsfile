@@ -1,4 +1,4 @@
-@Library("jenkins-devops-scripts@v1.8.0") _
+@Library("jenkins-devops-scripts") _
 node('slave') {
     def gitUtils = new com.beat.utilities.github()
     def stackUtils = new com.beat.utilities.stack()
