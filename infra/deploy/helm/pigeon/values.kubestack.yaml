@@ -1,0 +1,101 @@
+changeCause: ""
+
+replicaCount: 1
+
+image:
+  registry: registry.private.k8s.management.thebeat.co/beat/
+  name: pigeon
+  tag: helm
+  pullPolicy: Always
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+env:
+  PATRON_HTTP_DEFAULT_PORT: 50000
+  PATRON_JAEGER_SAMPLER_PARAM: 0.1
+  PATRON_JAEGER_SAMPLER_TYPE: probabilistic
+  PATRON_JAEGER_AGENT_PORT: 6831
+  PIGEON_KAFKA_BROKER: "kafka.taxibeat.staging:9092"
+  PIGEON_KAFKA_GROUP: "notification"
+  PIGEON_KAFKA_TOPIC_TIME_CRITICAL: pigeon_critical
+  PIGEON_KAFKA_TOPIC_NON_TIME_CRITICAL: pigeon_non_critical
+  PIGEON_REST_URL: "http://rest.taxibeat.staging"
+  PIGEON_TWILIO_CALLBACK_PATH: /callback/notification/sms/twilio
+  PIGEON_TWILIO_ACCOUNT_SID: AC7fd971c3663f0feef37019f5b359b97a
+  PIGEON_TWILIO_ACCOUNT_TOKEN: 1733407bdf0a95790012b6b88ffb9c5f
+  PIGEON_TIME_CRITICAL_SMS_POOL: "+15005550006"
+  PIGEON_NON_TIME_CRITICAL_SMS_POOL: ""
+  PIGEON_HTTP_MESSAGE_CONSUMER_ENABLED: "true"
+  PIGEON_KAFKA_MESSAGE_CONSUMER_ENABLED: "false"
+  SEED_CONSUL_HTTP_ADDR: consul:8500
+  WATCH_CONSUL_HTTP_ADDR: consul:8500
+
+ingress:
+  enabled: true
+  # type can be either public or private
+  type: private
+  annotations: {}
+  # kubernetes.io/tls-acme: "true"
+  path: /
+  host: SANDBOX_PLACEHOLDER-pigeon
+  clusterSuffix: PRIVATE_CLUSTER_PLACEHOLDER
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 150m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+monitoring:
+  enabled: true
+  path: /metrics
+  port: 50000
+
+blackboxProbe:
+  enabled: true
+  path: /alive
+  severity: critical
+
+tracing:
+  enabled: true
+
+livenessProbe:
+  httpGet:
+    path: /alive
+    port: 50000
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 50000
+
+autoscaling:
+  enabled: false
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
