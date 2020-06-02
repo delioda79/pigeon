@@ -9,4 +9,4 @@ groups:
       domain: ride
     annotations:
       summary: "High memory usage"
-	    description: "Service consumes high memory (average > 200MiB) for the last minute."
+      description: "Service consumes high memory (average > 200MiB) for the last minute."
