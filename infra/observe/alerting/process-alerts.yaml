@@ -1,5 +1,5 @@
 groups:
-- name:pigeon.go_process.rules
+- name: pigeon.go_process.rules
   rules:
   - alert: HighMemoryUsage
     expr: avg(process_resident_memory_bytes) > 200000000
@@ -9,4 +9,4 @@ groups:
       domain: ride
     annotations:
       summary: "High memory usage"
-	  description: "Service consumes high memory (average > 200MiB) for the last minute."
+	    description: "Service consumes high memory (average > 200MiB) for the last minute."
