@@ -10,7 +10,7 @@ node('slave') {
     def project = gitUtils.determineRepoName(env.JOB_NAME)
     def commiter = gitUtils.determineGitCommiter()
     def stagingBranch = "staging-develop"
-    def namespace = "pigeon"
+    def namespace = "ride"
     def chartmuseumAPI = "https://chartmuseum.private.k8s.management.thebeat.co/api/charts"
     def slackChannel = "#server-deployments"
     def slackToken = 'ZqDw90HGTLn8YJ45eFFu2Mt9'
