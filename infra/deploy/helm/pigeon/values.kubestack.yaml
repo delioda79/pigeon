@@ -20,7 +20,7 @@ env:
   PATRON_JAEGER_SAMPLER_PARAM: 0.1
   PATRON_JAEGER_SAMPLER_TYPE: probabilistic
   PATRON_JAEGER_AGENT_PORT: 6831
-  PIGEON_KAFKA_BROKER: "kafka.taxibeat.staging:9092"
+  PIGEON_KAFKA_BROKER: "kafka:9092"
   PIGEON_KAFKA_GROUP: "notification"
   PIGEON_KAFKA_TOPIC_TIME_CRITICAL: pigeon_critical
   PIGEON_KAFKA_TOPIC_NON_TIME_CRITICAL: pigeon_non_critical
@@ -34,6 +34,7 @@ env:
   PIGEON_KAFKA_MESSAGE_CONSUMER_ENABLED: "false"
   SEED_CONSUL_HTTP_ADDR: consul:8500
   WATCH_CONSUL_HTTP_ADDR: consul:8500
+  STACK: 'kubestack'
 
 ingress:
   enabled: true
@@ -99,3 +100,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+mop:
+  enabled: true
+  annotation: "master-of-puppets.alpha.kubernetes.io/enabled"
