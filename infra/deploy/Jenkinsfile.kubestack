@@ -36,7 +36,7 @@ node('slave') {
     }
 
     def dockerMap = [
-        'pigeon'  : ''-f infra/deploy/local/Dockerfile .'
+        'pigeon'  : '-f infra/deploy/local/Dockerfile .'
     ]
 
     withCredentials([
