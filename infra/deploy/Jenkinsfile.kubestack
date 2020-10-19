@@ -45,15 +45,14 @@ node('slave') {
         def dockerFlags = ''
         envVarMapping = stackUtils.stackVariables('dev')
         version = env.TAG_NAME
-        setList = setList + " --set image.tag=${branchOrTag} \
-                        --set ingress.clusterSuffix=private.k8s.${envVarMapping.KUBERNETES_CLUSTER} \
-                        --set ingress.host=pigeon \
-                        --set main.version=${version} \
-                        --set env.PIGEON_REST_URL=${restSecureRouteKey} \
-                        --set changeCause=Jenkins=\"${RUN_DISPLAY_URL} Commiter=${commiter}\" \
-                        --set ingressOauth.clusterSuffix = \"dashboard.${envVarMapping.KUBERNETES_CLUSTER}\" \
-                        --set replicaCount=1 \
-                        --set autoscaling.enabled=false "
+
+        setList += [
+            'main.version':"${version}",
+            'env.PIGEON_REST_URL':"${restSecureRouteKey}",
+            'ingress.clusterSuffix':"private.k8s.${envVarMapping.KUBERNETES_CLUSTER}",
+            'ingress.host':"pigeon",
+            'ingressOauth.clusterSuffix': "dashboard.${envVarMapping.KUBERNETES_CLUSTER}"
+        ]
 
         // Pass Variables to Central Pipeline
         kubestack_deploy {
