@@ -180,6 +180,7 @@ node('slave') {
 
             stage("Apply Prometheus rules to ${stack} if available") {
                 try {
+                    def kubeconfigId = "KUBECONFIG_${envVarMapping.KUBERNETES_CLUSTER}"
                     monitoringUtils.prometheusConfig("${kubeconfigId}", "${namespace}", "infra/observe/alerting")
                 } catch (e) {
                     println("Exception on applying prometheus rules")
