@@ -48,10 +48,7 @@ node('slave') {
 
         setList += [
             'main.version':"${version}",
-            'env.PIGEON_REST_URL':"${restSecureRouteKey}",
-            'ingress.clusterSuffix':"private.k8s.${envVarMapping.KUBERNETES_CLUSTER}",
-            'ingress.host':"pigeon",
-            'ingressOauth.clusterSuffix': "dashboard.${envVarMapping.KUBERNETES_CLUSTER}"
+            'env.PIGEON_REST_URL':"${restSecureRouteKey}"
         ]
 
         // Pass Variables to Central Pipeline
