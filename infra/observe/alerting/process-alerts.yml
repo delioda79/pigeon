@@ -1,8 +1,8 @@
 groups:
 - name: pigeon.go_process.rules
   rules:
-  - alert: HighMemoryUsage
-    expr: avg(process_resident_memory_bytes) > 200000000
+  - alert: Pigeon-HighMemoryUsage
+    expr: sum by (kubernetes_pod_name)(rate(process_resident_memory_bytes{kubernetes_pod_name=~"^pigeon.*"}[5m])) > 200000000
     for: 5m
     labels:
       severity: critical
