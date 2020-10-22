@@ -32,8 +32,8 @@ env:
   PIGEON_NON_TIME_CRITICAL_SMS_POOL: ""
   PIGEON_HTTP_MESSAGE_CONSUMER_ENABLED: "true"
   PIGEON_KAFKA_MESSAGE_CONSUMER_ENABLED: "false"
-  SEED_CONSUL_HTTP_ADDR: consul-service:8500
-  WATCH_CONSUL_HTTP_ADDR: consul-service:8500
+  SEED_CONSUL_HTTP_ADDR: mop-consul-server:8500
+  WATCH_CONSUL_HTTP_ADDR: mop-consul-server:8500
   STACK: 'kubestack'
 
 ingress:
